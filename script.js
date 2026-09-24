@@ -8,11 +8,17 @@ const GIF_PIXEL = "img/ella.gif"; // GIF decorativo en móvil
 const TITULO_TEXTO = "Feliz Día de las Flores Amarillas";
 const VELOCIDAD_TIPEO = 55; // ms entre cada letra del título
 
-const NUM_GIRASOLES_CORAZON = 1400;
-const RETRASO_ENTRE_GIRASOLES = 3;
-const DURACION_VUELO_MS = 1700;
+/* =========================================================
+   DETECCIÓN AUTOMÁTICA DE MÓVIL
+   ========================================================= */
+function esMovil() {
+  return window.matchMedia("(max-width: 768px)").matches;
+}
 
-const NUM_PARTICULAS = 60; // partículas doradas flotando
+const NUM_GIRASOLES_CORAZON = esMovil() ? 500 : 1400;
+const NUM_PARTICULAS = esMovil() ? 30 : 60;
+const RETRASO_ENTRE_GIRASOLES = esMovil() ? 4 : 3;
+const DURACION_VUELO_MS = esMovil() ? 1400 : 1700;
 
 /* =========================================================
    REFERENCIAS AL DOM
@@ -44,7 +50,6 @@ fotoPersonaje.src = MI_PERSONAJE;
 
 let secuenciaIniciada = false;
 
-/* Posiciones (en % del escenario, coinciden con las puntas del SVG del árbol) */
 const PUNTAS_RAMAS = [
   { left: 35, top: 80 },
   { left: 65, top: 70 },
@@ -200,8 +205,7 @@ function iniciarParticulas() {
 }
 
 /* =========================================================
-   PASO 1 -> PASO 2: el girasol se mueve, crece el tallo,
-   luego las ramas, formando un pequeño árbol de girasoles
+   PASO 1 -> PASO 2
    ========================================================= */
 function crearFlorDeArbol(posicion, retraso) {
   const flor = crearGirasolDetallado("flor-arbol");
@@ -395,11 +399,9 @@ function generarPuntosCorazon(cantidad) {
    PASO 3: formar el corazón
    ========================================================= */
 function formarCorazon() {
-  // --- NUEVO: limpiar cualquier nodo de texto residual (rompe el �) ---
   Array.from(corazonGirasoles.childNodes).forEach((nodo) => {
     if (nodo.nodeType === 3) corazonGirasoles.removeChild(nodo);
   });
-  // --- FIN NUEVO ---
 
   const puntos = generarPuntosCorazon(NUM_GIRASOLES_CORAZON);
   const maxX = 18,
@@ -434,7 +436,14 @@ function formarCorazon() {
     const origenYPct = 55 + (Math.random() - 0.5) * 5;
     const dx = ((origenXPct - leftFinal) / 100) * cajaCorazon.width;
     const dy = ((origenYPct - topFinal) / 100) * cajaCorazon.height;
-    girasol.style.transform = `translate(${dx}px, ${dy}px) scale(0.2)`;
+    girasol.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(0.2)`;
+
+    /* === NUEVO === Evita que el SVG sea "seleccionable" al tocar
+       en Android/Samsung/Edge. No cambia el diseño. */
+    girasol.style.webkitTapHighlightColor = "transparent";
+    girasol.style.webkitUserSelect = "none";
+    girasol.style.userSelect = "none";
+    /* === FIN NUEVO === */
 
     corazonGirasoles.appendChild(girasol);
 
@@ -442,7 +451,7 @@ function formarCorazon() {
 
     setTimeout(() => {
       girasol.classList.add("visible");
-      girasol.style.transform = "translate(0, 0) scale(1)";
+      girasol.style.transform = "translate3d(0, 0, 0) scale(1)";
     }, indice * RETRASO_ENTRE_GIRASOLES);
   });
 
@@ -652,9 +661,6 @@ function abrirModalPersonaje() {
   abrirModal("modal-personaje");
 }
 
-/* =========================================================
-   CAMBIO 2: modal del personaje pixel (GIF)
-   ========================================================= */
 function abrirModalPixel() {
   const modal = document.getElementById("modal-pixel");
   const img   = document.getElementById("modal-pixel-img");
@@ -668,8 +674,6 @@ function abrirModalPixel() {
   abrirModal("modal-pixel");
 }
 
-// El contenedor completo también abre el modal al hacer clic
-// (por si el usuario toca fuera del <img> exacto)
 if (document.getElementById("pixel-personaje")) {
   document.getElementById("pixel-personaje").addEventListener("click", (e) => {
     if (e.target.tagName !== "IMG") abrirModalPixel();
@@ -681,14 +685,7 @@ fotoPersonaje.addEventListener("click", abrirModalPersonaje);
 
 /* =========================================================
    PERSONAJE DECORATIVO
-   - Móvil (<=768px): GIF img/ella.gif centrado con animación suave
-   - PC: pixel art en canvas (mantener)
-   Se reajusta automáticamente al redimensionar.
    ========================================================= */
-function esModoMovil() {
-  return window.matchMedia("(max-width:768px)").matches;
-}
-
 function iniciarPersonajePixelArt() {
   let contenedor = document.getElementById("pixel-personaje");
   if (!contenedor) {
@@ -700,7 +697,6 @@ function iniciarPersonajePixelArt() {
     fila.parentNode.insertBefore(contenedor, fila.nextSibling);
   }
 
-  // En ambos modos (PC y móvil) usamos el GIF img/ella.gif
   contenedor.innerHTML = "";
 
   const gif = document.createElement("img");
@@ -708,7 +704,6 @@ function iniciarPersonajePixelArt() {
   gif.alt = "";
   gif.setAttribute("aria-hidden", "false");
 
-  // Cambio 2: al hacer clic sobre el personaje pixel, abrir su modal
   gif.addEventListener("click", (e) => {
     e.stopPropagation();
     abrirModalPixel();
@@ -730,10 +725,9 @@ window.addEventListener("DOMContentLoaded", () => {
   iniciarPersonajePixelArt();
 });
 
-/* Reconstruir el personaje decorativo si cambia entre móvil/PC */
-let ultimoModoMovil = esModoMovil();
+let ultimoModoMovil = esMovil();
 window.addEventListener("resize", () => {
-  const actual = esModoMovil();
+  const actual = esMovil();
   if (actual !== ultimoModoMovil) {
     ultimoModoMovil = actual;
     iniciarPersonajePixelArt();
