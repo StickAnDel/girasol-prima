@@ -30,7 +30,7 @@ body{
   font-family:var(--fuente-texto);
   color:var(--texto);
   overflow-x:hidden;
-  overflow-y:hidden;        /* NUEVO: la página entera no scrollea fuera de #escenario */
+  overflow-y:hidden;
 }
 
 #particulas {
@@ -63,20 +63,20 @@ svg.girasol-cae,
   position:relative;
   z-index:2;
   height:100vh;
-  height:100svh;         /* altura FIJA, no mínima */
-  min-height:0;          /* anula cualquier herencia */
-  max-height:100svh;     /* techo duro */
+  height:100svh;
+  min-height:0;
+  max-height:100svh;
   display:flex;
-  align-items:stretch;   /* dejamos que los hijos manejen su altura */
+  align-items:stretch;
   gap:0;
-  overflow:hidden;       /* recorta lo que el hijo quiera salir del viewport */
+  overflow:hidden;
 }
 
 /* ---------- IZQUIERDA (oculta hasta que el corazón se forma) ---------- */
 #zona-texto{
   position:relative;
   width:0;
-  height:100%;              /* NUEVO: hereda la altura del padre en todo momento */
+  height:100%;
   opacity:0;
   overflow:hidden;
   white-space:nowrap;
@@ -89,13 +89,13 @@ svg.girasol-cae,
   width:46%;
   opacity:1;
   white-space:normal;
-  padding:3vh 3vw 3vh 5vw;   /* 6vh arriba → 3vh · 6vh abajo → 3vh */
-  height:100%;               /* ocupa la altura del padre (que ya es 100svh) */
-  overflow-y:auto;           /* si el contenido es mucho, hace scroll INTERNO, no del body */
+  padding:3vh 3vw 3vh 5vw;
+  height:100%;
+  overflow-y:auto;
   overflow-x:hidden;
   box-sizing:border-box;
-  scrollbar-width:thin;                    /* Firefox: fina */
-  scrollbar-color:rgba(201,162,39,0.35) transparent; /* Firefox: dorado suave */
+  scrollbar-width:thin;
+  scrollbar-color:rgba(201,162,39,0.35) transparent;
 }
 
 /* Barra de scroll fina y discreta para el scroll interno (WebKit) */
@@ -148,21 +148,27 @@ body::-webkit-scrollbar-thumb:hover{
   line-height: 1.35;
   margin: 0 0 0.7em;
   min-height: 2.7em;
-  /* Sin flex, sin nowrap: el texto fluye y puede partirse en líneas */
+}
+
+/* Ocultar el título mientras esté vacío (evita ver los 🌻 sueltos
+   antes de que empiece la animación) */
+#titulo:empty{
+  visibility:hidden;
+}
+#titulo:not(:empty){
+  visibility:visible;
 }
 
 /* Girasol izquierdo — inline, fluye con el texto */
 #titulo::before {
   content: "🌻 ";
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
-  /* sin display, sin margin: es inline por defecto */
 }
 
 /* Girasol derecho — inline, pegado al último carácter del texto */
 #titulo::after {
   content: " 🌻";
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
-  /* sin display, sin margin: es inline y fluye con la última palabra */
 }
 
 @keyframes parpadeoCursor {
@@ -304,7 +310,7 @@ body::-webkit-scrollbar-thumb:hover{
 
 /* ---------- Personaje decorativo (pixel art en PC / GIF en móvil) ---------- */
 #pixel-personaje{
-  margin-top:0.8em;         /* antes 1.2em: menos empuje vertical */
+  margin-top:0.8em;
   display:flex;
   justify-content:center;
   align-items:flex-end;
@@ -322,7 +328,6 @@ body::-webkit-scrollbar-thumb:hover{
   transition-delay: 1.6s;
 }
 
-/* Cambio 1: personaje pixel 2-3x más grande (antes 64px) */
 #pixel-personaje canvas {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -334,11 +339,10 @@ body::-webkit-scrollbar-thumb:hover{
   transition: transform .35s ease;
 }
 
-/* Cambio 1: GIF 2-3x más grande (antes 90px) */
 #pixel-personaje img{
   width:220px;
   max-width:100%;
-  max-height:28vh;          /* NUEVO: nunca ocupa más de ~1/4 de pantalla de alto */
+  max-height:28vh;
   height:auto;
   object-fit:contain;
   display:block;
@@ -370,13 +374,13 @@ body::-webkit-scrollbar-thumb:hover{
 #zona-corazon{
   flex:1;
   min-width:0;
-  height:100%;              /* NUEVO: nunca más alto que el padre */
+  height:100%;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:4vh 4vw;
   box-sizing:border-box;
-  overflow:hidden;          /* NUEVO: si el cuadrado 1:1 no cabe, se recorta */
+  overflow:hidden;
 }
 
 #escenario-corazon{
@@ -384,7 +388,7 @@ body::-webkit-scrollbar-thumb:hover{
   width:min(78vh, 92%);
   max-width:640px;
   aspect-ratio:1/1;
-  max-height:100%;          /* NUEVO: nunca sobrepasa la altura de #zona-corazon */
+  max-height:100%;
 }
 
 /* Paso 1: girasol único inicial */
@@ -796,20 +800,11 @@ body::-webkit-scrollbar-thumb:hover{
   #zona-corazon {
     order: -1;
     padding: 3vh 5vw;
-    overflow: visible;          /* ← cambio 1 */
-    flex-shrink: 0;              /* ← CORRECCIÓN: en flex-direction:column, #zona-texto
-                                     (aunque sus líneas tengan opacity:0) ya reserva su
-                                     altura real de contenido y le disputa espacio a
-                                     #zona-corazon. Sin esto, el motor de flex encogía
-                                     #zona-corazon por debajo de su height:100%, dejando
-                                     al cuadrado del corazón sin sitio y empujado/desbordado
-                                     hacia abajo. Con flex-shrink:0, #zona-corazon conserva
-                                     siempre su 100% de altura y es #zona-texto — que ya
-                                     tiene overflow-y:auto — quien cede espacio si hace falta. */
+    overflow: visible;
   }
 
   #escenario-corazon {
-    width: 82vw;                /* ← cambio 2 */
+    width: 82vw;
     max-width: 82vw;
     margin: 0 auto;
   }
@@ -817,7 +812,7 @@ body::-webkit-scrollbar-thumb:hover{
   #girasol-inicial {
     width: 26vw;
     height: 26vw;
-    min-width: 90px;            /* ← cambio 3 */
+    min-width: 90px;
     min-height: 90px;
   }
 }
@@ -831,25 +826,20 @@ body::-webkit-scrollbar-thumb:hover{
 
 /* =========================================================
    MÓVIL (<=768px): DISTRIBUCIÓN VERTICAL COMPACTA
-   Solo se ajustan márgenes y paddings verticales.
-   Ningún tamaño se reduce.
    ========================================================= */
 @media (max-width:768px) {
 
   #zona-corazon{
     padding:2vh 3vw 1vh;
-    overflow:visible;           /* ← cambio 1 */
+    overflow:visible;
   }
   #escenario-corazon{
-    width:82vw;                 /* ← cambio 2 */
+    width:82vw;
     max-width:82vw;
     margin:0 auto;
   }
-  #escena-inicial{
-    transform: translateY(25px);
-  }
 
-  /* --- Contenedor del texto: subirlo ~15px --- */
+  /* --- Contenedor del texto --- */
   #zona-texto,
   #zona-texto.mostrar{
     width:100%;
@@ -868,7 +858,7 @@ body::-webkit-scrollbar-thumb:hover{
     -webkit-overflow-scrolling:touch;
   }
 
-  /* Título: menos espacio debajo */
+  /* Título */
   #titulo{
     font-size:1.55rem;
     line-height:1.3;
@@ -881,7 +871,7 @@ body::-webkit-scrollbar-thumb:hover{
     overflow-wrap:break-word;
   }
 
-  /* Párrafos más juntos */
+  /* Párrafos */
   #mensaje{
     display:block;
     width:100%;
@@ -902,7 +892,7 @@ body::-webkit-scrollbar-thumb:hover{
     margin-top:0.25em;
   }
 
-  /* Foto + Stitch: subirlas ligeramente */
+  /* Foto + Stitch */
   #fila-foto-personaje{
     display:flex;
     flex-direction:row;
@@ -922,7 +912,7 @@ body::-webkit-scrollbar-thumb:hover{
     max-width:128px;
   }
 
-  /* Personaje pixel: subirlo aún más */
+  /* Personaje pixel */
   #pixel-personaje{
     margin-top:-0.9em;
     justify-content:center;
@@ -943,11 +933,9 @@ body::-webkit-scrollbar-thumb:hover{
 
 /* =========================================================
    CELULARES PEQUEÑOS (<=420px)
-   Misma lógica: solo compactar verticalmente.
    ========================================================= */
 @media (max-width:420px) {
 
-  /* Corazón: mismo tamaño que en <=768 */
   #escenario-corazon{
     width:70vw;
     max-width:70vw;
@@ -961,14 +949,10 @@ body::-webkit-scrollbar-thumb:hover{
     max-width:140px;
     max-height:140px;
   }
-  #escena-inicial{
-    transform: translateY(35px);
-  }
   #texto-clic{
     font-size:0.95rem;
   }
 
-  /* Texto: menos espacio vertical entre bloques */
   #titulo{
     font-size:1.4rem;
     line-height:1.28;
@@ -984,7 +968,6 @@ body::-webkit-scrollbar-thumb:hover{
     margin-top:0.2em;
   }
 
-  /* Foto + PNG: subirlas un poco más */
   #marco-ella{
     max-width:135px;
     width:38%;
@@ -998,7 +981,6 @@ body::-webkit-scrollbar-thumb:hover{
     margin-top:0.35em;
   }
 
-  /* GIF aún más arriba */
   #pixel-personaje{
     margin-top:-1em;
   }
@@ -1042,48 +1024,34 @@ body::-webkit-scrollbar-thumb:hover{
 }
 
 /* =========================================================
-   CAMBIO 3: MOVIMIENTO HORIZONTAL SUAVE DEL CORAZÓN
-   Solo se mueve en el eje X: centro → derecha → centro →
-   izquierda → centro. Sin movimiento vertical, sin rebotes,
-   sin escalados, sin temblores.
+   MOVIMIENTO HORIZONTAL SUAVE DEL CORAZÓN
    ========================================================= */
 @keyframes flotarCorazon {
   0% {
     transform: translate3d(0, 0, 0);
   }
 
-  /* centro */
   25% {
     transform: translate3d(4px, 0, 0);
   }
 
-  /* derecha */
   50% {
     transform: translate3d(0, 0, 0);
   }
 
-  /* centro */
   75% {
     transform: translate3d(-4px, 0, 0);
   }
 
-  /* izquierda */
   100% {
     transform: translate3d(0, 0, 0);
   }
-
-  /* centro */
 }
 
 /* =========================================================
-   CAMBIO 4: OPTIMIZACIÓN GPU DEL CORAZÓN Y SUS GIRASOLES
-   - transform en capa propia
-   - evitar repaints innecesarios
-   - mantener 60 fps
+   OPTIMIZACIÓN GPU DEL CORAZÓN Y SUS GIRASOLES
    ========================================================= */
 #corazon-girasoles {
-  /* El latido original usa transform:scale(), ahora lo combinamos
-     con translate3d en la animación flotante para mantener GPU. */
   will-change: transform;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
@@ -1091,8 +1059,6 @@ body::-webkit-scrollbar-thumb:hover{
   contain: layout paint style;
 }
 
-/* Cuando el corazón empieza a latir, combinamos el latido
-   original con el vaivén horizontal suave. */
 #corazon-girasoles.latir {
   animation: latido 2.6s ease-in-out infinite,
     flotarCorazon 9s ease-in-out infinite;
@@ -1103,7 +1069,6 @@ body::-webkit-scrollbar-thumb:hover{
   position: absolute;
   opacity: 0;
   cursor: pointer;
-  /* Cambio 4: forzar capa GPU y evitar repaints */
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
@@ -1111,16 +1076,13 @@ body::-webkit-scrollbar-thumb:hover{
     opacity 0.6s ease;
 }
 
-/* Cambio 4: los girasolitos que caen también en su propia capa */
 .girasol-cae {
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
 /* =========================================================
-   CAMBIO 1: Fondo negro sólido SOLO para el modal del
-   personaje pixel, para que el GIF destaque mejor.
-   No afecta a los modales de foto ni de personaje PNG.
+   Fondo negro sólido SOLO para el modal del personaje pixel
    ========================================================= */
 .modal-contenido--negro{
   background:#000;
@@ -1131,7 +1093,6 @@ body::-webkit-scrollbar-thumb:hover{
   background:#000;
   box-shadow:0 6px 18px rgba(0,0,0,0.55);
 }
-/* Botones legibles sobre negro */
 .modal-contenido--negro .modal-btn{
   background:#111;
   color:var(--dorado-claro);
