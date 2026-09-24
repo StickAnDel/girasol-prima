@@ -33,6 +33,80 @@ body{
   overflow-y:hidden;
 }
 
+/* =========================================================
+   === NUEVO === ELIMINAR TAP HIGHLIGHT / FOCUS RING AZUL ===
+   Aplica a toda la página. No afecta al diseño visual.
+   Cubre Android Chrome, Samsung Internet, Edge Mobile y Safari iOS.
+   ========================================================= */
+html,
+body,
+body *,
+body *::before,
+body *::after {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-touch-callout: none;
+}
+
+/* Quitar outline y selección en elementos interactivos
+   (solo se desactiva el outline visual, la accesibilidad por
+   teclado sigue funcionando porque mantenemos :focus-visible) */
+a,
+button,
+[role="button"],
+svg,
+svg *,
+#girasol-inicial,
+#corazon-girasoles,
+.girasol-corazon,
+.girasol-cae,
+.flor-arbol,
+#marco-ella,
+#foto-ella,
+#personaje,
+#foto-personaje,
+#pixel-personaje,
+#pixel-personaje img,
+#pixel-personaje canvas {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  outline: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Mantener accesibilidad por teclado (Tab + Enter) sin el halo azul del tap */
+a:focus,
+button:focus,
+[role="button"]:focus,
+svg:focus,
+#girasol-inicial:focus,
+#corazon-girasoles:focus {
+  outline: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+svg:focus-visible,
+#girasol-inicial:focus-visible {
+  outline: 2px solid var(--dorado);
+  outline-offset: 4px;
+}
+
+/* Evita que el contenedor del corazón muestre cualquier sombreado
+   al ser tocado o clicado */
+#corazon-girasoles,
+#corazon-girasoles * {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+/* === FIN NUEVO === */
+
 #particulas {
   position: fixed;
   inset: 0;
@@ -575,6 +649,8 @@ body::-webkit-scrollbar-thumb:hover{
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
   filter: drop-shadow(0 2px 4px rgba(107, 68, 35, 0.25));
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .flor-arbol.mostrar {
@@ -617,10 +693,16 @@ body::-webkit-scrollbar-thumb:hover{
   transform-origin: 50% 55%;
   cursor: pointer;
   pointer-events: none;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  contain: layout paint style;
 }
 
 #corazon-girasoles.latir {
-  animation: latido 2.6s ease-in-out infinite;
+  animation: latido 2.6s ease-in-out infinite,
+    flotarCorazon 9s ease-in-out infinite;
   pointer-events: auto;
 }
 
@@ -641,6 +723,8 @@ body::-webkit-scrollbar-thumb:hover{
   opacity: 0;
   cursor: pointer;
   will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   transition: transform 1.6s cubic-bezier(.16, .7, .24, 1),
     opacity 0.6s ease;
 }
@@ -663,6 +747,8 @@ body::-webkit-scrollbar-thumb:hover{
   animation-name: caerSuave;
   animation-timing-function: ease-in;
   animation-fill-mode: forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 @keyframes caerSuave {
@@ -1046,39 +1132,6 @@ body::-webkit-scrollbar-thumb:hover{
   100% {
     transform: translate3d(0, 0, 0);
   }
-}
-
-/* =========================================================
-   OPTIMIZACIÓN GPU DEL CORAZÓN Y SUS GIRASOLES
-   ========================================================= */
-#corazon-girasoles {
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-  contain: layout paint style;
-}
-
-#corazon-girasoles.latir {
-  animation: latido 2.6s ease-in-out infinite,
-    flotarCorazon 9s ease-in-out infinite;
-  pointer-events: auto;
-}
-
-.girasol-corazon {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  will-change: transform, opacity;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  transition: transform 1.6s cubic-bezier(.16, .7, .24, 1),
-    opacity 0.6s ease;
-}
-
-.girasol-cae {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
 }
 
 /* =========================================================
